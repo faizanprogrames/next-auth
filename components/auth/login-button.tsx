@@ -19,7 +19,7 @@ export default function LoginButton({
   const router = useRouter();
 
   const onClick = () => {
-    router.push("/login");
+    router.push("/auth/login");
   };
 
   if (mode === "model") {
