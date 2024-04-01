@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { useState, useTransition } from "react";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -17,11 +19,18 @@ import {
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 
+import { FormError } from "@components/form-error";
+import FormSuccess from "@components/form-success";
+
 import { RegisterSchema } from "@schemas";
 import { z } from "zod";
 import { register } from "@actions/register";
 
 export default function RegisterForm() {
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -31,27 +40,40 @@ export default function RegisterForm() {
   });
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
-    register(values);
+    setError("");
+    setSuccess("");
+
+    startTransition(() => {
+      register(values).then((data) => {
+        setError(data.error);
+        setSuccess(data.success);
+      });
+    });
   };
 
   return (
     <CardWrapper
       headerLabel="Create an account"
       backButtonLabel="Already have an account?"
-      backButtonHref="/auth/register"
+      backButtonHref="/auth/login"
       showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <FormField
+          <FormField
               control={form.control}
               name="name"
+              disabled={isPending}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} type="text" />
+                    <Input
+                      placeholder="John Doe"
+                      {...field}
+                      type="text"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -61,6 +83,7 @@ export default function RegisterForm() {
             <FormField
               control={form.control}
               name="email"
+              disabled={isPending}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -79,6 +102,7 @@ export default function RegisterForm() {
             <FormField
               control={form.control}
               name="password"
+              disabled={isPending}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
@@ -98,7 +122,9 @@ export default function RegisterForm() {
               <Link href="/auth/reset">Forgot password?</Link>
             </Button>
           </div>
-          <Button type="submit" className="w-full">
+          <FormError message={error} />
+          <FormSuccess message={success} />
+          <Button disabled={isPending} type="submit" className="w-full">
             Register
           </Button>
         </form>
