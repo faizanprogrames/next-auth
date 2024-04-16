@@ -61,7 +61,7 @@ export default function RegisterForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-          <FormField
+            <FormField
               control={form.control}
               name="name"
               disabled={isPending}
@@ -69,11 +69,7 @@ export default function RegisterForm() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      {...field}
-                      type="text"
-                    />
+                    <Input placeholder="John Doe" {...field} type="text" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
